@@ -59,7 +59,8 @@ void SbusRx::Begin() {
   if (inv_){
     uart_->begin(baud_, SERIAL_8E2_RXINV_TXINV);
   } else {
-    uart_->begin(baud_, SERIAL_8E2);
+    //uart_->begin(baud_, SERIAL_8E2);
+    uart_->begin(baud_);
   }
   /* STM32L4 */
   #elif defined(STM32L496xx) || defined(STM32L476xx) || \
@@ -103,21 +104,8 @@ bool SbusRx::Parse() {
         state_ = 0;
       }
     }
-    else if (state_ == 1){
-      if (cur_byte_ == XBEE_LEN1){
-        state_++;
-      }
-      else {
-        state_ = 0;
-      }
-    }
-    else if (state_ == 2){
-      if (cur_byte_ == XBEE_LEN2){
-        state_++;
-      }
-      else {
-        state_ = 0;
-      }
+    else if (state_ > 0 && state_ < 3){
+      state_++;
     }
     else if (state_ == 3){
       if (cur_byte_ == XBEE_FRAMETYPE){
@@ -131,14 +119,15 @@ bool SbusRx::Parse() {
       state_++;
     }
     else if (state_ == 15) {
-      if ((cur_byte_ == HEADER_) && ((prev_byte_ == FOOTER_) ||
-         ((prev_byte_ & 0x0F) == FOOTER2_))) {
-        buf_[state_++] = cur_byte_;
+      if ((cur_byte_ == HEADER_)) {
+        buf_[state_ - 15] = cur_byte_;
+        state_ ++;
       } else {
         state_ = 0;
       }
     } else if (state_ < PAYLOAD_LEN_ + HEADER_LEN_ + 15) {
-        buf_[state_++] = cur_byte_;
+        buf_[state_ - 15] = cur_byte_;
+        state_ ++;
     } else if (state_ < PAYLOAD_LEN_ + HEADER_LEN_ + FOOTER_LEN_ + 15) {
       state_ = 0;
       prev_byte_ = cur_byte_;
