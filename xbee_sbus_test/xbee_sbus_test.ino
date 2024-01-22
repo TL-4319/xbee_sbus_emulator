@@ -12,6 +12,7 @@ void setup() {
   while (!Serial) {}
   /* Begin the SBUS communication */
   sbus_rx.Begin();
+  data = sbus_rx.data();
 }
 
 void loop () {
@@ -19,10 +20,11 @@ void loop () {
     /* Grab the received data */
     data = sbus_rx.data();
     /* Display the received data */
-    for (int8_t i = 0; i < data.NUM_CH; i++) {
+  }
+  for (int8_t i = 0; i < data.NUM_CH; i++) {
       Serial.print(data.ch[i]);
       Serial.print(" ");
     }
     Serial.println();
-  }
+  delay(250);
 }

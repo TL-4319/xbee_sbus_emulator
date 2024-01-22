@@ -79,6 +79,11 @@ void SbusRx::Begin() {
   #endif
   /* flush the bus */
   uart_->flush();
+  for (uint8_t i = 0; i < data_.NUM_CH; i++){
+    data_.ch[i] = 172;
+  }
+  data_.failsafe = false;
+  data_.lost_frame = false;
 }
 
 bool SbusRx::Read() {
